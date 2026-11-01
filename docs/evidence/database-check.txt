@@ -1,0 +1,11 @@
+﻿eight_tables	five_categories	ten_tags	thirty_ingredients	vietnamese_text	seven_foreign_keys	three_cascades	four_restricts	six_unique_constraints	camelcase_timestamps
+1	1	1	1	1	1	1	1	1	1
+Tables_in_webcookingrecipe
+categories
+ingredients
+recipe_ingredients
+recipe_steps
+recipe_tag
+recipes
+tags
+users

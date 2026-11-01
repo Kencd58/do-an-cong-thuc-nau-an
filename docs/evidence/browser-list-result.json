@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "fixtures": 13,
+  "widths": [375, 1440],
+  "checks": [
+    "public and personal filters",
+    "12/1 pagination",
+    "query and selection retention",
+    "submit resets page",
+    "clear on current route",
+    "empty and out-of-range states",
+    "clean invalid-query redirect",
+    "tags and no thumbnails",
+    "no overflow or JavaScript errors"
+  ]
+}

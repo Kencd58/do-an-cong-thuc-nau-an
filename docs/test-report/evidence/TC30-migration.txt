@@ -1,0 +1,51 @@
+
+   INFO  Preparing database.  
+
+  Creating migration table .............................................................................. 11.81ms DONE
+
+   INFO  Running migrations.  
+
+  2026_10_11_000001_create_ratings_table ................................................................ 75.29ms DONE
+  2026_10_11_000002_create_comments_table ............................................................... 75.12ms DONE
+
+{
+    "passed": true,
+    "database": "recipe_migration_f3027c613052",
+    "fixtureWithExistingRecipe": true,
+    "unchangedBaseline": {
+        "users": {
+            "count": 1,
+            "sha256": "61659223c31c7e23039a48e75873fcd8ecd7148ab47ee6dd40ce9b976f5f5547"
+        },
+        "recipes": {
+            "count": 1,
+            "sha256": "b401cb113070595842f4b92b956a6c5e53ee6d1a5b20f00919d6336f0fa62e64"
+        },
+        "categories": {
+            "count": 5,
+            "sha256": "532800ca23e683901ac8b7e623393e8b944d09ae4f1b5ecca83e29fa0c48a9c8"
+        },
+        "tags": {
+            "count": 10,
+            "sha256": "2f1fd986fabf50a6a278e1600d4fee49651932155bf55ca40d7dcf8a77b637a2"
+        },
+        "ingredients": {
+            "count": 30,
+            "sha256": "af4d152e3fce4e131e79ad702c888632b83805961f0c971e75d8f1c6d7a4ebcb"
+        },
+        "recipe_steps": {
+            "count": 1,
+            "sha256": "d6b3b2ddd75f78e4d3caeef3fd96d45b1c700b6f717a1bbbd45827200c8d87e4"
+        },
+        "recipe_ingredients": {
+            "count": 1,
+            "sha256": "e54397333e687bc00a02b64a6f3333c660f49ff43a8f881e1899bd16a9515af6"
+        },
+        "recipe_tag": {
+            "count": 1,
+            "sha256": "4060a00047dea3d0cf93c5d36474f191e0cb23c8155a2d3cbec46e40502a2283"
+        }
+    },
+    "businessTables": 10,
+    "migrationTable": 1
+}

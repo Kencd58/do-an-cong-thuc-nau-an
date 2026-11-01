@@ -1,0 +1,41 @@
+﻿{"users":0,"recipes":0}
+[
+    {
+        "eight_tables": 1,
+        "five_categories": 1,
+        "ten_tags": 1,
+        "thirty_ingredients": 1,
+        "vietnamese_text": 1,
+        "seven_foreign_keys": 1,
+        "three_cascades": 1,
+        "four_restricts": 1,
+        "six_unique_constraints": 1,
+        "camelcase_timestamps": 1
+    }
+]
+[
+    {
+        "Tables_in_webcookingrecipe": "categories"
+    },
+    {
+        "Tables_in_webcookingrecipe": "ingredients"
+    },
+    {
+        "Tables_in_webcookingrecipe": "recipe_ingredients"
+    },
+    {
+        "Tables_in_webcookingrecipe": "recipe_steps"
+    },
+    {
+        "Tables_in_webcookingrecipe": "recipe_tag"
+    },
+    {
+        "Tables_in_webcookingrecipe": "recipes"
+    },
+    {
+        "Tables_in_webcookingrecipe": "tags"
+    },
+    {
+        "Tables_in_webcookingrecipe": "users"
+    }
+]

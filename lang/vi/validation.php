@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'required' => 'Vui lòng nhập :attribute.',
+    'string' => ':Attribute phải là chuỗi ký tự.',
+    'email' => 'Vui lòng nhập email hợp lệ.',
+    'min' => ['string' => ':Attribute phải có ít nhất :min ký tự.', 'array' => ':Attribute phải có ít nhất :min mục.'],
+    'max' => ['string' => ':Attribute không được vượt quá :max ký tự.', 'array' => ':Attribute không được quá :max mục.', 'file' => ':Attribute không được lớn hơn :max KB.'],
+    'integer' => ':Attribute phải là số nguyên.',
+    'numeric' => ':Attribute phải là số.',
+    'between' => ['numeric' => ':Attribute phải từ :min đến :max.'],
+    'decimal' => ':Attribute chỉ được có tối đa :max chữ số thập phân.',
+    'array' => ':Attribute phải là danh sách chỉ chứa các trường được phép.',
+    'exists' => ':Attribute đã chọn không tồn tại.',
+    'distinct' => ':Attribute không được trùng lặp.',
+    'in' => ':Attribute đã chọn không hợp lệ.',
+    'image' => ':Attribute phải là file ảnh thật.',
+    'mimes' => ':Attribute chỉ chấp nhận JPEG, PNG hoặc WebP.',
+    'uploaded' => 'Không thể tải :attribute lên. Vui lòng chọn ảnh không quá 2 MB.',
+    'boolean' => ':Attribute phải là có hoặc không.',
+    'prohibited' => 'Không được gửi :attribute khi tạo công thức.',
+    'confirmed' => 'Mật khẩu xác nhận không khớp.',
+    'unique' => ':Attribute này đã được sử dụng.',
+    'attributes' => ['name' => 'họ và tên', 'email' => 'email', 'password' => 'mật khẩu'],
+];

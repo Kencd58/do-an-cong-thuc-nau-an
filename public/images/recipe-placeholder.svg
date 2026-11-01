@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480">
+  <rect width="640" height="480" fill="#edf0e5"/>
+  <circle cx="320" cy="230" r="116" fill="#faf8f3" stroke="#c1cbb9" stroke-width="3"/>
+  <circle cx="320" cy="230" r="82" fill="none" stroke="#d7dece" stroke-width="2"/>
+  <path d="M294 248c-20-55 19-79 67-77-2 46-19 76-67 77Zm0 0 43-52" fill="#a0b58e" stroke="#526d45" stroke-width="4" stroke-linecap="round"/>
+  <path d="M168 159v64m-12-64v31q12 26 24 0v-31m-12 64v80m304-144v144m0-144q-26 41 0 66" fill="none" stroke="#889779" stroke-width="6" stroke-linecap="round"/>
+  <text x="320" y="391" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="21" fill="#526448">Bếp Nhà</text>
+</svg>

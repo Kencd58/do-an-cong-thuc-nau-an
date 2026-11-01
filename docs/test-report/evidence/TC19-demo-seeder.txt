@@ -1,0 +1,10 @@
+
+   PASS  Tests\Feature\DemoSeederTest
+  ✓ tc01 default seeder only seeds repeatable catalogs                                                           0.54s  
+  ✓ tc19 demo is complete repeatable and leaves other accounts unchanged                                         2.14s  
+  ✓ tc19 production guard prevents all writes                                                                    0.05s  
+  ✓ tc19 conflicting demo email is preserved and rolls back                                                      0.33s  
+
+  Tests:    4 passed (426 assertions)
+  Duration: 3.47s
+

@@ -1,0 +1,116 @@
+// Run on the isolated recipe_test server, as described in README.md.
+async page => {
+    const base = 'http://127.0.0.1:8001';
+    const check = (condition, message) => { if (!condition) throw new Error(message); };
+    const results = [];
+    await page.context().clearCookies();
+    await page.goto(`${base}/register`);
+    check((await page.context().cookies()).some(c => c.name === 'bep_nha_auth_check'), 'Refusing non-test server');
+    const suffix = await page.evaluate(() => crypto.randomUUID());
+    const password = await page.evaluate(() => crypto.randomUUID());
+    await page.locator('#name').fill('RECIPE_BROWSER_CHECK');
+    await page.locator('#email').fill(`recipe-browser-${suffix}@example.test`);
+    await page.locator('#password').fill(password);
+    await page.locator('#password_confirmation').fill(password);
+    await page.locator('.button-full').click();
+    await page.waitForURL(`${base}/`);
+    await page.goto(`${base}/recipes/create`);
+    await page.setViewportSize({width: 375, height: 900});
+    check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Create overflow at 375px');
+    await page.locator('#title').fill('Trứng chiên hành tại nhà');
+    await page.locator('#description').fill('Món ăn đơn giản cho buổi sáng.\n<script>window.recipeXss = true</script>');
+    await page.locator('#categoryId').selectOption('1');
+    await page.locator('#prepTime').fill('5');
+    await page.locator('#cookTime').fill('10');
+    await page.locator('#ingredients-0-ingredientId').selectOption('7');
+    check(await page.locator('#ingredients-0-unit').inputValue() === 'quả', 'Default unit not suggested');
+    await page.locator('#ingredients-0-quantity').fill('2');
+    await page.locator('#ingredients-0-note').fill('Đánh đều cùng hành');
+    await page.locator('[data-add="ingredients"]').click();
+    await page.locator('#ingredients-1-ingredientId').selectOption('11');
+    await page.locator('#ingredients-1-quantity').fill('1');
+    await page.locator('#ingredients-1-unit').selectOption('g');
+    await page.locator('#ingredients-1-ingredientId').selectOption('7');
+    check(await page.locator('#ingredients-1-unit').inputValue() === 'g', 'Existing unit was overwritten');
+    await page.locator('#steps-0-instruction').fill('Đánh trứng và hành.');
+    await page.locator('[data-add="steps"]').click();
+    await page.locator('#steps-1-instruction').fill('Bước sẽ xóa');
+    await page.locator('[data-add="steps"]').click();
+    await page.locator('#steps-2-instruction').fill('Chiên đến khi chín.');
+    await page.locator('[data-rows="steps"] [data-row]').nth(1).locator('[data-remove]').click();
+    check(await page.locator('#steps-1-instruction').inputValue() === 'Chiên đến khi chín.', 'Steps not reindexed');
+    await page.locator('input[name="tagIds[]"][value="1"]').check();
+    await page.locator('input[name="tagIds[]"][value="2"]').check();
+    await page.locator('[data-recipe-form] button[type="submit"]').click();
+    await page.locator('.field-error').first().waitFor();
+    check(await page.locator('#ingredients-0-note').inputValue() === 'Đánh đều cùng hành', 'Old ingredient input lost');
+    check(await page.locator('#steps-1-instruction').inputValue() === 'Chiên đến khi chín.', 'Old steps lost');
+    check(await page.locator('input[name="tagIds[]"]:checked').count() === 2, 'Old tags lost');
+    check(await page.locator('#image').inputValue() === '', 'File input should be empty');
+    check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Error form overflow');
+    await page.screenshot({path: 'docs/evidence/recipe-errors-375.png', fullPage: true});
+    await page.locator('#ingredients-1-ingredientId').selectOption('11');
+    await page.locator('#ingredients-1-unit').selectOption('nhánh');
+    await page.screenshot({path: 'docs/evidence/recipe-create-375.png', fullPage: true});
+    await page.setViewportSize({width: 1440, height: 1000});
+    await page.screenshot({path: 'docs/evidence/recipe-create-1440.png', fullPage: true});
+    await page.locator('[data-recipe-form] button[type="submit"]').click();
+    await page.waitForURL(/\/recipes\/\d+$/);
+    const recipeUrl = page.url();
+    check(await page.locator('.notice-success').count() === 1, 'Create failed');
+    check(await page.evaluate(() => window.recipeXss === undefined), 'XSS executed');
+    check(await page.locator('.step-list li').count() === 2, 'Wrong step count');
+    for (const width of [375, 1440]) {
+        await page.setViewportSize({width, height: 1000});
+        check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Show overflow ${width}`);
+        await page.screenshot({path: `docs/evidence/recipe-show-${width}.png`, fullPage: true});
+    }
+    results.push('REC01/03/10/11: create, validation, old rows/tags, step reindex, default units, XSS and 375/1440px passed');
+    // All write routes must reject both missing and incorrect CSRF over real HTTP.
+    for (const [method, url] of [['POST', `${base}/recipes`], ['PUT', recipeUrl], ['DELETE', recipeUrl]]) {
+        for (const token of [undefined, 'invalid-token']) {
+            const response = await page.request.fetch(url, {method, form: token ? {_token: token} : {}, maxRedirects: 0});
+            check(response.status() === 419, `${method} invalid CSRF accepted`);
+        }
+    }
+    results.push('REC08/11: real HTTP POST/PUT/DELETE missing or incorrect CSRF all return 419');
+    await page.getByRole('link', {name: 'Sửa công thức', exact: true}).click();
+    await page.setViewportSize({width: 375, height: 1000});
+    await page.locator('#title').fill('Trứng chiên hành đã cập nhật');
+    while (await page.locator('input[name="tagIds[]"]:checked').count()) await page.locator('input[name="tagIds[]"]:checked').first().uncheck();
+    await page.screenshot({path: 'docs/evidence/recipe-edit-375.png', fullPage: true});
+    await page.locator('[data-recipe-form] button[type="submit"]').click();
+    await page.waitForURL(recipeUrl);
+    check(await page.locator('h1').textContent() === 'Trứng chiên hành đã cập nhật', 'Update failed');
+    check(await page.locator('.tags span').count() === 0, 'Unselected tags retained');
+    // Force a broken image and count requests to ensure fallback runs once.
+    let fallbackRequests = 0;
+    await page.route('**/images/recipe-default.png', route => { fallbackRequests++; return route.abort(); });
+    await page.locator('.recipe-cover').evaluate(img => { img.src = '/missing-recipe-image.png'; });
+    await page.waitForFunction(() => document.querySelector('.recipe-cover').dataset.fallbackUsed === 'true');
+    await page.waitForLoadState('networkidle');
+    check(fallbackRequests === 1, 'Image fallback loop or missing fallback');
+    await page.unroute('**/images/recipe-default.png');
+    await page.reload();
+    await page.goto(`${base}/my/recipes`);
+    check(await page.getByRole('heading', {name: 'Trứng chiên hành đã cập nhật'}).count() === 1, 'My recipes missing item');
+    await page.screenshot({path: 'docs/evidence/recipe-my-375.png', fullPage: true});
+    await page.goto(recipeUrl);
+    let deletes = 0;
+    const countDelete = request => { if (request.url() === recipeUrl && request.method() === 'POST') deletes++; };
+    page.on('request', countDelete);
+    page.once('dialog', dialog => dialog.dismiss());
+    await page.getByRole('button', {name: 'Xóa công thức', exact: true}).click();
+    check(deletes === 0, 'Cancel sent delete request');
+    await page.reload();
+    check(await page.locator('h1').textContent() === 'Trứng chiên hành đã cập nhật', 'Cancel deleted recipe');
+    page.once('dialog', dialog => dialog.accept());
+    await page.getByRole('button', {name: 'Xóa công thức', exact: true}).click();
+    await page.waitForURL(`${base}/recipes`);
+    check(deletes === 1, 'Confirm did not send exactly one delete');
+    page.off('request', countDelete);
+    check((await page.request.get(recipeUrl)).status() === 404, 'Deleted recipe is still readable');
+    results.push('REC04/09/11: update, clear tags, my list, one-shot image fallback, cancel/confirm delete passed');
+    await page.evaluate(result => { window.recipeCheckResults = result; }, {results});
+    return {results};
+}

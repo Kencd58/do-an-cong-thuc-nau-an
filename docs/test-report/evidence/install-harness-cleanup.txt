@@ -1,0 +1,9 @@
+array:7 [
+  "users" => 0
+  "recipes" => 0
+  "ratings" => 0
+  "comments" => 0
+  "categories" => 5
+  "tags" => 10
+  "ingredients" => 30
+] // vendor\psy\psysh\src\ExecutionClosure.php(41) : eval()'d code:8

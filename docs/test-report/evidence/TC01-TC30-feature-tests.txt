@@ -1,0 +1,68 @@
+
+   PASS  Tests\Feature\AuthTest
+  ✓ auth01 registration normalizes hashes and rotates session                                                    0.91s  
+  ✓ auth02 duplicate and confirmation errors keep only safe input                                                0.27s  
+  ✓ long password is hashed in full                                                                              0.59s  
+  ✓ registration rejects empty short long and malformed inputs                                                   0.05s  
+  ✓ auth03 login rotates session and uses framework intended url                                                 0.40s  
+  ✓ auth03 wrong and unknown accounts have identical errors                                                      0.62s  
+  ✓ login does not reapply registration password length rules                                                    0.55s  
+  ✓ auth04 logout invalidates session token and write access                                                     0.30s  
+  ✓ auth05 guest and authenticated redirects do not loop                                                         0.35s  
+  ✓ future recipes index is used as fallback                                                                     0.57s  
+  ✓ auth07 forms have labels csrf and safe values                                                                0.03s  
+  ✓ racing email insert becomes email validation error                                                           0.55s  
+  ✓ other database errors are generic and logs exclude bindings                                                  0.29s  
+
+   PASS  Tests\Feature\DemoSeederTest
+  ✓ tc01 default seeder only seeds repeatable catalogs                                                           0.17s  
+  ✓ tc19 demo is complete repeatable and leaves other accounts unchanged                                         2.41s  
+  ✓ tc19 production guard prevents all writes                                                                    0.04s  
+  ✓ tc19 conflicting demo email is preserved and rolls back                                                      0.31s  
+
+   PASS  Tests\Feature\RecipeCrudTest
+  ✓ rec01 create public recipe and ignore untrusted fields                                                       0.11s  
+  ✓ rec02 upload precedes database write and returns https pair                                                  0.09s  
+  ✓ rec03 invalid inputs never write or upload                                                                   0.20s  
+  ✓ rec04 update replaces children reindexes steps and clears missing tags                                       0.07s  
+  ✓ rec05 keep replace and remove image in correct order                                                         0.08s  
+  ✓ rec06 invalid files and replace remove conflict                                                              0.11s  
+  ✓ rec06 upload failure preserves recipe and old input                                                          0.06s  
+  ✓ rec07 cleanup failure reports success with warning                                                           0.08s  
+  ✓ rec08 guests redirect and other users forbidden before validation                                            0.10s  
+  ✓ rec09 delete cascades without changing catalog                                                               0.05s  
+  ✓ rec10 missing ids and escaped content                                                                        0.10s  
+  ✓ rec11 old input forms and catalog relations                                                                  0.13s  
+  ✓ lists paginate twelve and sort by creation then id                                                           0.09s  
+  ✓ partial save failure has no false success or image cleanup                                                   0.06s  
+  ✓ missing cloudinary configuration allows no image and rejects upload                                          0.12s  
+  ✓ invalid input types can be redisplayed without server error                                                  0.06s  
+
+   PASS  Tests\Feature\RecipeInteractionTest
+  ✓ int01 ratings are independent and aggregates are read from database                                          0.09s  
+  ✓ int02 repeated upserts keep one row and created timestamp and delete is idempotent                           0.07s  
+  ✓ int03 owner is forbidden before validation and scores use rating bag                                         0.16s  
+  ✓ int04 many comments trim content and reject invalid input                                                    0.15s  
+  ✓ int05 only comment author can edit delete and edit preserves owner and recipe                                0.11s  
+  ✓ int06 cross recipe and missing ids are 404 before validation                                                 0.10s  
+  ✓ int07 guest can read but all five writes require login                                                       0.06s  
+  ✓ int08 pagination is stable and failed edit only restores its own form                                        0.14s  
+  ✓ int09 script and names are escaped for guests and edit forms                                                 0.06s  
+  ✓ int10 recipe delete cascades only its interactions and users are restricted                                  0.04s  
+  ✓ database failure preserves form input without success or sensitive logs                                      0.05s  
+
+   PASS  Tests\Feature\RecipeListTest
+  ✓ list01 defaults home alias and twelve per page                                                               0.14s  
+  ✓ list02 keyword only searches title and treats wildcards literally                                            0.18s  
+  ✓ list03 individual filters and and between groups                                                             0.22s  
+  ✓ list04 or inside groups without duplicate recipes                                                            0.13s  
+  ✓ list05 all sorts have stable id tie breakers                                                                 0.12s  
+  ✓ list06 pagination keeps query and filter form resets page                                                    0.21s  
+  ✓ list07 personal list cannot be overridden by client owner                                                    0.14s  
+  ✓ list08 invalid queries redirect cleanly before recipe query                                                  2.64s  
+  ✓ list09 empty and out of range states                                                                         0.15s  
+  ✓ list10 cards and existing show menu routes remain available                                                  0.17s  
+
+  Tests:    54 passed (2063 assertions)
+  Duration: 15.23s
+

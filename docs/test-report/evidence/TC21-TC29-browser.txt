@@ -1,0 +1,1 @@
+{"passed":true,"widths":[375,1440],"checks":["rating create/update/remove","comment create/edit/delete","12 comments, pagination 10/2","isolated validation errors on page 2","escaped script","cancel and confirm delete","five endpoints reject missing and invalid CSRF with 419","owner and guest controls","no overflow or JavaScript errors"]}

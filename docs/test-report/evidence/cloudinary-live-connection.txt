@@ -1,0 +1,13 @@
+Date: 2026-10-11 (Asia/Saigon)
+Runtime: XAMPP PHP 8.2.12, installed Cloudinary PHP SDK, application UploadApi binding.
+Command: C:\xampp\php\php.exe tests/check-cloudinary.php --live
+Mode: real Cloudinary API, local .env credentials; no mock and no recipe database writes.
+Initial sandbox attempt: outbound connection blocked (ConnectException).
+Retry with authorized network access: exit code 0.
+
+PASS: signed upload through the application's Cloudinary binding; HTTPS URL and public ID returned.
+PASS: public HTTPS image delivery returned HTTP 200 and image content.
+PASS: temporary image cleanup returned ok. No recipe database writes.
+
+Scope: connection/upload/public delivery/destroy only. This does not certify the full browser recipe create/replace/remove/delete workflow (TC06/TC09/TC20).
+No API key, API secret, environment URL, cookies or password recorded.

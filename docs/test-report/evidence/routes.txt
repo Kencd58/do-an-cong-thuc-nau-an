@@ -1,0 +1,23 @@
+
+  GET|HEAD  / .......................................................................... home › RecipeController@index
+  GET|HEAD  login ................................................................... login › AuthController@showLogin
+  POST      login ................................................................. login.store › AuthController@login
+  POST      logout .................................................................... logout › AuthController@logout
+  GET|HEAD  my/recipes ................................................... my.recipes.index › MyRecipeController@index
+  GET|HEAD  recipes ........................................................... recipes.index › RecipeController@index
+  POST      recipes ........................................................... recipes.store › RecipeController@store
+  GET|HEAD  recipes/create .................................................. recipes.create › RecipeController@create
+  PUT       recipes/{recipe} ................................................ recipes.update › RecipeController@update
+  DELETE    recipes/{recipe} .............................................. recipes.destroy › RecipeController@destroy
+  GET|HEAD  recipes/{recipe} .................................................... recipes.show › RecipeController@show
+  POST      recipes/{recipe}/comments ............................... recipes.comments.store › CommentController@store
+  PUT       recipes/{recipe}/comments/{comment} ................... recipes.comments.update › CommentController@update
+  DELETE    recipes/{recipe}/comments/{comment} ................. recipes.comments.destroy › CommentController@destroy
+  GET|HEAD  recipes/{recipe}/edit ............................................... recipes.edit › RecipeController@edit
+  PUT       recipes/{recipe}/rating .................................. recipes.rating.update › RatingController@update
+  DELETE    recipes/{recipe}/rating ................................ recipes.rating.destroy › RatingController@destroy
+  GET|HEAD  register .......................................................... register › AuthController@showRegister
+  POST      register ........................................................ register.store › AuthController@register
+
+                                                                                                   Showing [19] routes
+
