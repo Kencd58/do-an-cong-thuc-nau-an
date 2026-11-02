@@ -37,7 +37,7 @@
             <input type="number" id="maxTotalTime" name="maxTotalTime" min="1" max="2880" step="1" value="{{ $filters['maxTotalTime'] ?? '' }}">
         </div>
     </div>
-    @foreach (['tagIds' => ['Thẻ', $tags], 'ingredientIds' => ['Nguyên liệu', $ingredients]] as $field => [$label, $options])
+    @foreach (['tagIds' => ['Thẻ', $tags->reject(fn ($tag) => in_array($tag->name, config('recipe.hidden_tags'), true))], 'ingredientIds' => ['Nguyên liệu', $ingredients]] as $field => [$label, $options])
         <fieldset class="tag-fieldset">
             <legend>{{ $label }}</legend>
             <p class="field-hint">Có ít nhất một {{ mb_strtolower($label) }} đã chọn.</p>
@@ -51,13 +51,22 @@
             </div>
         </fieldset>
     @endforeach
-    <div class="field">
-        <label for="sort">Sắp xếp</label>
-        <select id="sort" name="sort">
-            @foreach (['newest' => 'Mới nhất', 'title' => 'Tên công thức', 'time' => 'Thời gian tăng dần'] as $value => $label)
-                <option value="{{ $value }}" @selected($filters['sort'] === $value)>{{ $label }}</option>
-            @endforeach
-        </select>
+    <div class="sort-controls" aria-label="Sắp xếp danh sách">
+        <div class="field">
+            <label for="sort">Sắp xếp theo</label>
+            <select id="sort" name="sort" data-auto-submit>
+                @foreach (['time' => 'Thời gian chế biến', 'rating' => 'Số sao đánh giá', 'difficulty' => 'Độ khó'] as $value => $label)
+                    <option value="{{ $value }}" @selected(($filters['sort'] ?? 'time') === $value)>{{ $label }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="field">
+            <label for="order">Thứ tự</label>
+            <select id="order" name="order" data-auto-submit>
+                <option value="asc" @selected(($filters['order'] ?? 'asc') === 'asc')>Tăng dần</option>
+                <option value="desc" @selected(($filters['order'] ?? 'asc') === 'desc')>Giảm dần</option>
+            </select>
+        </div>
     </div>
     <div class="form-actions">
         <button type="submit" class="button">Áp dụng</button>

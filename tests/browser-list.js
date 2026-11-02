@@ -48,10 +48,10 @@ async page => {
         check(new URL(page.url()).searchParams.get('page') === '2', 'Home pagination failed');
         await page.getByRole('link', {name: 'Tìm kiếm', exact: true}).click();
         check(await page.locator('input[type="search"]').count() === 1, 'Search should remain available');
-        const query = new URLSearchParams({keyword: marker, categoryId: '1', difficulty: 'easy', maxTotalTime: '15', sort: 'time'});
+        const query = new URLSearchParams({keyword: marker, categoryId: '1', difficulty: 'easy', maxTotalTime: '15', sort: 'time', order: 'asc'});
         for (const id of ['1', '2']) query.append('tagIds[]', id);
         for (const id of ['7', '11']) query.append('ingredientIds[]', id);
-        for (const path of ['/recipes', '/my/recipes']) {
+        for (const path of ['/recipes']) {
             await page.goto(`${base}${path}?${query}`);
             check(await page.locator('.recipe-card').count() === 12, 'Expected 12 cards');
             check(await page.locator('.recipe-card img').count() === 12, 'Every recipe post should have an image');
@@ -70,8 +70,7 @@ async page => {
             }
             check(await page.locator('input[name="tagIds[]"]:checked').count() === 2, 'Lost tags');
             check(await page.locator('input[name="ingredientIds[]"]:checked').count() === 2, 'Lost ingredients');
-            await page.locator('#sort').selectOption('title');
-            await page.getByRole('button', {name: 'Áp dụng'}).click();
+            await page.locator('#sort').selectOption('difficulty');
             await page.waitForLoadState();
             check(!new URL(page.url()).searchParams.has('page'), 'Submit retained page');
             check(await page.locator('.recipe-card').count() === 12, 'Submit did not return to first page');
@@ -93,8 +92,11 @@ async page => {
             await page.reload();
             check(await page.getByRole('alert').count() === 0, 'Filter errors persist unexpectedly');
         }
+        await page.goto(`${base}/my/recipes`);
+        check(await page.locator('.filter-panel').count() === 0, 'My recipes should not show filters');
+        check(await page.locator('.recipe-card').count() === 12, 'My recipes should keep the recipe list');
         check(errors.length === 0, 'JavaScript errors: ' + errors.join(', '));
-        return {passed: true, fixtures: 13, widths: [375, 1440], checks: ['home feed visible without scrolling', 'newest first and home pagination', 'separate search navigation', 'public and personal filters', '12/1 pagination',
+        return {passed: true, fixtures: 13, widths: [375, 1440], checks: ['home feed visible without scrolling', 'newest first and home pagination', 'separate search navigation', 'public filters and clean personal list', '12/1 pagination',
             'query and selection retention', 'submit resets page', 'clear on current route', 'empty and out-of-range states',
             'clean invalid-query redirect', 'tags and post images', 'no overflow or JavaScript errors']};
     } finally {

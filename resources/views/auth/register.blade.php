@@ -3,13 +3,13 @@
 @section('content')
 <section class="auth-layout" aria-labelledby="page-title">
     <div class="auth-story">
-        <p class="eyebrow">GÓC BẾP CỦA BẠN</p>
+        <p class="eyebrow">Góc bếp của bạn</p>
         <h1 id="page-title">Món ngon bắt đầu<br>từ <em>căn bếp nhỏ.</em></h1>
         <p>Lưu lại cảm hứng, chia sẻ công thức và mang những bữa ăn ngon đến gần nhau hơn.</p>
-        <div class="story-note"><span aria-hidden="true">✳</span><p>Mỗi công thức là một câu chuyện.<br>Câu chuyện của bạn bắt đầu ở đây.</p></div>
+        <div class="story-note"><p>Mỗi công thức là một câu chuyện.<br>Câu chuyện của bạn bắt đầu ở đây.</p></div>
     </div>
     <div class="auth-card">
-        <p class="eyebrow">CHÀO MỪNG ĐẾN BẾP NHÀ</p>
+        <p class="eyebrow">Chào mừng đến Bếp Nhà</p>
         <h2>Tạo tài khoản</h2>
         <p class="card-intro">Cùng nhau nấu những điều thật ngon.</p>
         <form method="POST" action="{{ route('register.store') }}">
@@ -34,7 +34,7 @@
                 <label for="password_confirmation">Xác nhận mật khẩu</label>
                 <input id="password_confirmation" name="password_confirmation" type="password" autocomplete="new-password" required minlength="8">
             </div>
-            <button class="button button-full" type="submit">Tạo tài khoản <span aria-hidden="true">→</span></button>
+            <button class="button button-full" type="submit">Tạo tài khoản</button>
         </form>
         <p class="form-switch">Đã có tài khoản? <a href="{{ route('login') }}">Đăng nhập</a></p>
     </div>

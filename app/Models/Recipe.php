@@ -18,6 +18,7 @@ class Recipe extends Model
 
     public function scopeFilter(Builder $query, array $filters): Builder
     {
+        $query->withAvg('ratings', 'score')->withCount('ratings');
         if (isset($filters['keyword']) && $filters['keyword'] !== '') {
             $keyword = strtr($filters['keyword'], ['!' => '!!', '%' => '!%', '_' => '!_']);
             $query->whereRaw("title LIKE ? ESCAPE '!'", ['%'.$keyword.'%']);
@@ -37,10 +38,12 @@ class Recipe extends Model
             $query->whereRaw('(prepTime + cookTime) <= ?', [$filters['maxTotalTime']]);
         }
 
-        return match ($filters['sort'] ?? 'newest') {
-            'title' => $query->orderBy('title')->orderBy('id'),
-            'time' => $query->orderByRaw('(prepTime + cookTime) ASC')->orderBy('id'),
-            default => $query->orderByDesc('createdAt')->orderByDesc('id'),
+        $direction = ($filters['order'] ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
+
+        return match ($filters['sort'] ?? 'time') {
+            'rating' => $query->orderByRaw("COALESCE(ratings_avg_score, 0) {$direction}")->orderBy('id'),
+            'difficulty' => $query->orderByRaw("CASE difficulty WHEN 'easy' THEN 1 WHEN 'medium' THEN 2 WHEN 'hard' THEN 3 ELSE 4 END {$direction}")->orderBy('id'),
+            default => $query->orderByRaw("(prepTime + cookTime) {$direction}")->orderBy('id'),
         };
     }
 

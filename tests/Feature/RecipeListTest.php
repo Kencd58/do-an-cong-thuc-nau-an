@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Recipe;
+use App\Models\Rating;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -73,22 +74,23 @@ class RecipeListTest extends TestCase
         });
     }
 
-    public function test_list01_home_and_search_show_newest_twelve_per_page(): void
+    public function test_list01_home_is_newest_and_search_defaults_to_fastest_twelve_per_page(): void
     {
-        foreach (['/', '/recipes'] as $path) {
-            $this->listing([], $path)->assertViewHas('recipes', function ($recipes) {
-                $this->assertSame(15, $recipes->total());
-                $this->assertSame(12, $recipes->count());
-                $this->assertSame(12, $recipes->perPage());
-                $this->assertSame(array_map(fn ($item) => $item->id, array_reverse(array_slice($this->items, 3))), $recipes->pluck('id')->all());
-                $this->assertTrue($recipes->every(fn ($recipe) => $recipe->relationLoaded('user') && $recipe->relationLoaded('category') && $recipe->relationLoaded('tags')));
-
-                return true;
-            });
-        }
-        $this->listing()->assertViewHas('filters', ['tagIds' => [], 'ingredientIds' => [], 'sort' => 'newest', 'page' => 1]);
+        $this->listing([], '/')->assertViewHas('recipes', function ($recipes) {
+            $this->assertSame(array_map(fn ($item) => $item->id, array_reverse(array_slice($this->items, 3))), $recipes->pluck('id')->all());
+            return true;
+        });
+        $this->listing()->assertViewHas('recipes', function ($recipes) {
+            $this->assertSame(15, $recipes->total());
+            $this->assertSame(12, $recipes->count());
+            $this->assertSame(12, $recipes->perPage());
+            $this->assertSame([$this->items[0]->id, $this->items[1]->id, $this->items[2]->id], $recipes->pluck('id')->take(3)->all());
+            $this->assertTrue($recipes->every(fn ($recipe) => $recipe->relationLoaded('user') && $recipe->relationLoaded('category') && $recipe->relationLoaded('tags')));
+            return true;
+        });
+        $this->listing()->assertViewHas('filters', ['tagIds' => [], 'ingredientIds' => [], 'sort' => 'time', 'order' => 'asc', 'page' => 1]);
         $this->listing(['page' => 2])->assertViewHas('recipes', fn ($recipes) => $recipes->count() === 3);
-        $this->listing(['keyword' => '  ', 'categoryId' => '', 'difficulty' => '', 'maxTotalTime' => '', 'tagIds' => '', 'ingredientIds' => '', 'sort' => '', 'page' => ''])
+        $this->listing(['keyword' => '  ', 'categoryId' => '', 'difficulty' => '', 'maxTotalTime' => '', 'tagIds' => '', 'ingredientIds' => '', 'sort' => '', 'order' => '', 'page' => ''])
             ->assertViewHas('recipes', fn ($recipes) => $recipes->total() === 15);
     }
 
@@ -133,24 +135,26 @@ class RecipeListTest extends TestCase
     public function test_list05_all_sorts_have_stable_id_tie_breakers(): void
     {
         $a = $this->recipe('Sort Z', 1, 'easy', 10, [], []);
-        $b = $this->recipe('Sort A', 1, 'easy', 20, [], []);
-        $c = $this->recipe('Sort A', 1, 'easy', 10, [], []);
-        $a->createdAt = '2025-02-01 00:00:00';
-        $a->save();
-        $this->assertItems(['keyword' => 'Sort', 'sort' => 'newest'], [$a, $c, $b]);
-        $this->assertItems(['keyword' => 'Sort', 'sort' => 'title'], [$b, $c, $a]);
+        $b = $this->recipe('Sort A', 1, 'medium', 20, [], []);
+        $c = $this->recipe('Sort C', 1, 'hard', 10, [], []);
+        Rating::create(['recipeId' => $a->id, 'userId' => $this->owner->id, 'score' => 4]);
+        Rating::create(['recipeId' => $b->id, 'userId' => $this->owner->id, 'score' => 2]);
+        Rating::create(['recipeId' => $c->id, 'userId' => $this->owner->id, 'score' => 4]);
         $this->assertItems(['keyword' => 'Sort', 'sort' => 'time'], [$a, $c, $b]);
+        $this->assertItems(['keyword' => 'Sort', 'sort' => 'time', 'order' => 'desc'], [$b, $a, $c]);
+        $this->assertItems(['keyword' => 'Sort', 'sort' => 'rating', 'order' => 'desc'], [$a, $c, $b]);
+        $this->assertItems(['keyword' => 'Sort', 'sort' => 'difficulty'], [$a, $b, $c]);
+        $this->assertItems(['keyword' => 'Sort', 'sort' => 'difficulty', 'order' => 'desc'], [$c, $b, $a]);
     }
 
     public function test_list06_pagination_keeps_query_and_filter_form_resets_page(): void
     {
         $query = ['keyword' => 'Món', 'categoryId' => 3, 'tagIds' => [4, 5], 'ingredientIds' => [8, 9],
-            'difficulty' => 'easy', 'maxTotalTime' => 60, 'sort' => 'title'];
+            'difficulty' => 'easy', 'maxTotalTime' => 60, 'sort' => 'difficulty', 'order' => 'desc'];
         $this->recipe('Món thường 12', 3, 'easy', 60, [4], [8]);
-        foreach (['/recipes', '/my/recipes'] as $path) {
-            $this->actingAs($this->owner);
-            $this->listing($query + ['page' => 2], $path)->assertDontSee('name="page"', false)
-                ->assertSee('method="GET" action="'.url($path).'"', false)
+        $this->actingAs($this->owner);
+        $this->listing($query + ['page' => 2])->assertDontSee('name="page"', false)
+                ->assertSee('method="GET" action="'.url('/recipes').'"', false)
                 ->assertViewHas('recipes', function ($recipes) use ($query) {
                     parse_str(parse_url($recipes->url(1), PHP_URL_QUERY), $actual);
                     $this->assertEquals($query + ['page' => 1], $actual);
@@ -158,25 +162,25 @@ class RecipeListTest extends TestCase
 
                     return true;
                 })->assertViewHas('filters', $query + ['page' => '2']);
-            $this->listing($query, $path)->assertViewHas('recipes', fn ($recipes) => $recipes->currentPage() === 1);
-        }
+        $this->listing($query)->assertViewHas('recipes', fn ($recipes) => $recipes->currentPage() === 1);
+        $this->listing(['page' => 2], '/my/recipes')->assertDontSee('Bộ lọc')
+            ->assertViewHas('recipes', fn ($recipes) => $recipes->currentPage() === 2);
     }
 
     public function test_list07_personal_list_cannot_be_overridden_by_client_owner(): void
     {
         $this->get('/my/recipes?userId='.$this->owner->id)->assertRedirect('/login');
         $this->actingAs($this->other);
-        $this->assertItems(['userId' => $this->owner->id, 'tagIds' => [1, 3], 'ingredientIds' => [7, 18]], [$this->items[2]], '/my/recipes');
-        $this->listing(['userId' => [$this->owner->id]], '/my/recipes')
-            ->assertViewHas('filters', fn ($filters) => ! array_key_exists('userId', $filters))
-            ->assertViewHas('recipes', fn ($recipes) => $recipes->total() === 1);
+        $this->listing(['userId' => $this->owner->id, 'tagIds' => [1, 3]], '/my/recipes')
+            ->assertViewHas('recipes', fn ($recipes) => $recipes->total() === 1 && $recipes->first()->is($this->items[2]))
+            ->assertDontSee('Bộ lọc');
     }
 
     public function test_list08_invalid_queries_redirect_cleanly_before_recipe_query(): void
     {
         $invalid = [
             ['categoryId' => 999999], ['categoryId' => [1]], ['tagIds' => [999999]], ['ingredientIds' => [999999]],
-            ['sort' => 'title desc; DROP TABLE recipes'], ['page' => -1], ['page' => 0], ['page' => '1.5'],
+            ['sort' => 'title desc; DROP TABLE recipes'], ['order' => 'sideways'], ['page' => -1], ['page' => 0], ['page' => '1.5'],
             ['keyword' => str_repeat('a', 101)], ['keyword' => ['x']], ['difficulty' => 'impossible'],
             ['maxTotalTime' => 0], ['maxTotalTime' => 2881], ['maxTotalTime' => '1.5'],
             ['tagIds' => '1'], ['tagIds' => [1, 1]], ['tagIds' => range(1, 11)],
@@ -184,7 +188,7 @@ class RecipeListTest extends TestCase
             ['tagIds' => [[1]]], ['ingredientIds' => ['bad']], ['sort' => ['time']], ['page' => [1]],
         ];
         $this->actingAs($this->owner);
-        foreach (['/recipes', '/my/recipes'] as $path) {
+        foreach (['/recipes'] as $path) {
             foreach ($invalid as $query) {
                 DB::enableQueryLog();
                 DB::flushQueryLog();
@@ -206,7 +210,7 @@ class RecipeListTest extends TestCase
         $this->listing(['categoryId' => 1, 'page' => 999])->assertSee('Trang này không có công thức')
             ->assertSee('Về trang 1')->assertViewHas('recipes', fn ($recipes) => str_contains($recipes->url(1), 'categoryId=1'));
         $this->actingAs($this->other);
-        $this->listing(['keyword' => 'không tồn tại'], '/my/recipes')->assertSee('Không tìm thấy công thức phù hợp')->assertDontSee('Đăng công thức đầu tiên');
+        $this->listing(['keyword' => 'không tồn tại'], '/my/recipes')->assertSee($this->items[2]->title)->assertDontSee('Bộ lọc');
         $this->listing(['page' => 2], '/my/recipes')->assertSee('Về trang 1');
         $this->items[2]->delete();
         $this->listing([], '/my/recipes')->assertSee('Đăng công thức đầu tiên')->assertDontSee('Không tìm thấy công thức phù hợp');
@@ -222,7 +226,7 @@ class RecipeListTest extends TestCase
         $this->get('/my/recipes')->assertOk();
         $queries = collect(DB::getQueryLog())->pluck('query')->implode("\n");
         DB::disableQueryLog();
-        $this->assertStringNotContainsString('`ratings`', $queries);
+        $this->assertStringContainsString('`ratings`', $queries);
         $this->assertStringNotContainsString('`comments`', $queries);
         $this->get('/recipes/'.$this->items[0]->id)->assertOk()->assertSee('Trứng 100% ngon');
         $this->get('/recipes/create')->assertOk();

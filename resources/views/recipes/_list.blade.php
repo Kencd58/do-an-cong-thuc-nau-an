@@ -1,6 +1,7 @@
 <div class="recipe-grid recipe-feed">
     @forelse ($recipes as $recipe)
         @php($postImage = is_string($recipe->imageUrl) && str_starts_with($recipe->imageUrl, '/storage/') ? $recipe->imageUrl : asset('images/recipe-default.png'))
+        @php($visibleTags = $recipe->tags->reject(fn ($tag) => in_array($tag->name, config('recipe.hidden_tags'), true)))
         <article class="recipe-card recipe-post">
             <a class="recipe-post-header" href="{{ route('recipes.show', $recipe) }}">
                 <span class="post-avatar" aria-hidden="true">{{ mb_strtoupper(mb_substr($recipe->user->name, 0, 1)) }}</span>
@@ -27,9 +28,13 @@
                 <div class="post-facts" aria-label="Thông tin công thức">
                     <span><strong>{{ $recipe->prepTime + $recipe->cookTime }}</strong> phút</span>
                     <span>{{ config('recipe.difficulties')[$recipe->difficulty] ?? $recipe->difficulty }}</span>
+                    <span class="post-rating" aria-label="{{ $recipe->ratings_count ? number_format($recipe->ratings_avg_score, 1).' sao' : 'Chưa có đánh giá' }}">
+                        <span aria-hidden="true">★</span>
+                        {{ $recipe->ratings_count ? number_format($recipe->ratings_avg_score, 1) : 'Mới' }}
+                    </span>
                 </div>
-                @if ($recipe->tags->isNotEmpty())
-                    <div class="tags" aria-label="Thẻ công thức">@foreach ($recipe->tags as $tag)<span>{{ $tag->name }}</span>@endforeach</div>
+                @if ($visibleTags->isNotEmpty())
+                    <div class="tags" aria-label="Thẻ công thức">@foreach ($visibleTags as $tag)<span>{{ $tag->name }}</span>@endforeach</div>
                 @endif
             </div>
 

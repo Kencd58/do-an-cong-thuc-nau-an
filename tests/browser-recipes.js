@@ -22,12 +22,15 @@ async page => {
     await page.locator('#categoryId').selectOption('1');
     await page.locator('#prepTime').fill('5');
     await page.locator('#cookTime').fill('10');
-    await page.locator('#ingredients-0-ingredientId').selectOption('7');
+    await page.locator('[data-ingredient-search]').fill('Trứng gà');
+    await page.locator('[data-ingredient-option]:not([hidden]) [data-ingredient-add]').click();
     check(await page.locator('#ingredients-0-unit').inputValue() === 'quả', 'Default unit not suggested');
     await page.locator('#ingredients-0-quantity').fill('2');
     await page.locator('#ingredients-0-note').fill('Đánh đều cùng hành');
-    await page.locator('[data-add="ingredients"]').click();
-    await page.locator('#ingredients-1-ingredientId').selectOption('11');
+    await page.locator('[data-rows="ingredients"] [data-row]').nth(0).locator('[data-ingredient-confirm]').click();
+    check(await page.locator('[data-rows="ingredients"] [data-row]').nth(0).getAttribute('data-confirmed') === 'true', 'Ingredient did not collapse after confirmation');
+    await page.locator('[data-ingredient-search]').fill('Hành lá');
+    await page.locator('[data-ingredient-option]:not([hidden]) [data-ingredient-add]').click();
     await page.locator('#ingredients-1-quantity').fill('1');
     await page.locator('#ingredients-1-unit').selectOption('g');
     await page.locator('#ingredients-1-ingredientId').selectOption('7');
@@ -51,6 +54,7 @@ async page => {
     await page.screenshot({path: 'docs/evidence/recipe-errors-375.png', fullPage: true});
     await page.locator('#ingredients-1-ingredientId').selectOption('11');
     await page.locator('#ingredients-1-unit').selectOption('nhánh');
+    await page.locator('[data-rows="ingredients"] [data-row]').nth(1).locator('[data-ingredient-confirm]').click();
     await page.screenshot({path: 'docs/evidence/recipe-create-375.png', fullPage: true});
     await page.setViewportSize({width: 1440, height: 1000});
     await page.screenshot({path: 'docs/evidence/recipe-create-1440.png', fullPage: true});

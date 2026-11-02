@@ -32,15 +32,15 @@ async page => {
         check(created.status() === 302 && /\/recipes\/\d+$/.test(recipeUrl || ''), 'Recipe fixture failed');
         const token = await register(writer, 'Người nấu thử');
         await writer.goto(recipeUrl);
-        await writer.locator('#rating-score').selectOption('4');
+        await writer.locator('#rating-score-4').check();
         await writer.getByRole('button', {name: 'Gửi đánh giá', exact: true}).click();
         await writer.waitForURL(`${recipeUrl}#ratings`);
-        check(await writer.locator('#ratings').innerText().then(text => text.includes('4.0 / 5')), 'Rating create failed');
-        await writer.locator('#rating-score').selectOption('5');
+        check(await writer.locator('.rating-summary').innerText().then(text => text.includes('4.0')), 'Rating create failed');
+        await writer.locator('#rating-score-5').check();
         await Promise.all([writer.waitForNavigation(), writer.getByRole('button', {name: 'Cập nhật đánh giá', exact: true}).click()]);
-        check((await writer.locator('#ratings').innerText()).includes('5.0 / 5'), 'Rating update failed');
+        check((await writer.locator('.rating-summary').innerText()).includes('5.0'), 'Rating update failed');
         await Promise.all([writer.waitForNavigation(), writer.getByRole('button', {name: 'Gỡ đánh giá', exact: true}).click()]);
-        check((await writer.locator('#ratings').innerText()).includes('Chưa có đánh giá'), 'Rating delete failed');
+        check((await writer.locator('.rating-summary').innerText()).includes('Chưa có đánh giá'), 'Rating delete failed');
         await writer.request.post(`${recipeUrl}/rating`, {maxRedirects: 0, form: {_token: token, _method: 'PUT', score: 4}});
         await writer.goto(recipeUrl);
         await writer.locator('#comment-content').fill('<script>window.interactionXss=1</script> Món này ngon!');
@@ -99,12 +99,12 @@ async page => {
             }
         }
         await page.goto(recipeUrl);
-        check(await page.locator('#rating-score').count() === 0, 'Owner can see rating form');
+        check(await page.locator('.star-rating').count() === 0, 'Owner can see rating form');
         check(await page.getByRole('button', {name: 'Sửa bình luận', exact: true}).count() === 0, 'Owner sees foreign edit');
         await writerContext.clearCookies();
         await writer.goto(recipeUrl);
         check(await writer.locator('.comment').count() === 10, 'Guest cannot read comments');
-        check(await writer.locator('#rating-score, #comment-content').count() === 0, 'Guest sees write forms');
+        check(await writer.locator('.star-rating, #comment-content').count() === 0, 'Guest sees write forms');
         check(errors.length === 0, 'JavaScript errors: ' + errors.join(', '));
         return {passed: true, widths: [375, 1440], checks: ['rating create/update/remove', 'comment create/edit/delete', '12 comments, pagination 10/2', 'isolated validation errors on page 2', 'escaped script', 'cancel and confirm delete', 'five endpoints reject missing and invalid CSRF with 419', 'owner and guest controls', 'no overflow or JavaScript errors']};
     } finally {

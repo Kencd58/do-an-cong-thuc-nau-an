@@ -26,7 +26,7 @@ class RecipeController extends Controller
     public function home(): View
     {
         return view('recipes.home', [
-            'recipes' => Recipe::with(['user', 'category', 'tags'])
+            'recipes' => Recipe::with(['user', 'category', 'tags'])->withAvg('ratings', 'score')->withCount('ratings')
                 ->orderByDesc('createdAt')->orderByDesc('id')->paginate(12),
         ]);
     }

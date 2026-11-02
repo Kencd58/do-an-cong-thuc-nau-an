@@ -1,6 +1,12 @@
-<fieldset class="dynamic-row ingredient-row" data-row>
+@php
+    $rowIngredient = isset($row['ingredientId']) ? $ingredients->firstWhere('id', $row['ingredientId']) : null;
+    $rowHasErrors = $errors->has("ingredients.$i") || $errors->has("ingredients.$i.*");
+    $rowConfirmed = $rowIngredient && !empty($row['quantity']) && !empty($row['unit']) && !$rowHasErrors;
+@endphp
+<fieldset class="dynamic-row ingredient-row {{ $rowConfirmed ? 'is-confirmed' : 'is-editing' }}" data-row data-confirmed="{{ $rowConfirmed ? 'true' : 'false' }}">
     <legend>Nguyên liệu <span data-number>{{ is_numeric($i) ? $i + 1 : '' }}</span></legend>
     @include('recipes._error', ['field' => "ingredients.$i"])
+    <div class="ingredient-editor" data-ingredient-editor @if($rowConfirmed) hidden @endif>
     <div class="ingredient-grid">
         <div class="field"><label for="ingredients-{{ $i }}-ingredientId">Nguyên liệu</label>
             <select data-ingredient id="ingredients-{{ $i }}-ingredientId" name="ingredients[{{ $i }}][ingredientId]" required aria-describedby="ingredients.{{ $i }}.ingredientId-error">
@@ -22,5 +28,20 @@
             @include('recipes._error', ['field' => "ingredients.$i.note"])
         </div>
     </div>
-    <button class="remove-row" type="button" data-remove>Bỏ nguyên liệu</button>
+        <div class="ingredient-editor-actions">
+            <button class="nav-button button-compact button-danger-outline ingredient-delete" type="button" data-remove>Xóa nguyên liệu</button>
+            <button class="button button-compact" type="button" data-ingredient-confirm>Xác nhận</button>
+        </div>
+    </div>
+    <div class="ingredient-summary" data-ingredient-summary @unless($rowConfirmed) hidden @endunless tabindex="-1">
+        <div class="ingredient-summary-content">
+            <strong data-summary-name>{{ $rowIngredient?->name }}</strong>
+            <span data-summary-amount>{{ $formValue($row['quantity'] ?? '') }} {{ $formValue($row['unit'] ?? '') }}</span>
+            <p data-summary-note @if(empty($row['note'])) hidden @endif>{{ $formValue($row['note'] ?? '') }}</p>
+        </div>
+        <div class="ingredient-summary-actions">
+            <button class="nav-button button-compact" type="button" data-ingredient-edit aria-expanded="false">Sửa</button>
+            <button class="nav-button button-compact button-danger-outline ingredient-delete" type="button" data-remove>Xóa</button>
+        </div>
+    </div>
 </fieldset>
