@@ -22,7 +22,7 @@
                 <button class="button" type="submit">{{ $myRating ? 'Cập nhật đánh giá' : 'Gửi đánh giá' }}</button>
             </form>
             @if ($myRating)
-                <form class="form-actions" method="POST" action="{{ route('recipes.rating.destroy', $recipe) }}">
+                <form class="form-actions rating-remove-form" method="POST" action="{{ route('recipes.rating.destroy', $recipe) }}">
                     @csrf @method('DELETE')<button class="nav-button" type="submit">Gỡ đánh giá</button>
                 </form>
             @endif

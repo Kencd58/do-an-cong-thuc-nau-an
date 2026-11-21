@@ -18,6 +18,25 @@ composer --version
 
 Nếu Composer wrapper ép PHP khác (máy hiện tại ép 8.5.9), thay `composer` bằng `php D:\LaravelTools\composer.phar`; xác nhận Composer báo PHP 8.2.12. Linux/macOS dùng `cp` thay `Copy-Item`, `npm` thay `npm.cmd`.
 
+## Chạy thử tạm thời với SQLite
+
+Sau khi cài Composer/npm như bên dưới, có thể chạy local bằng SQLite với PHP có `pdo_sqlite` và Argon2id. Giữ `.env` riêng của máy, đặt `APP_ENV=local`, `DB_CONNECTION=sqlite`, `DB_URL=` và `DB_DATABASE` là đường dẫn tuyệt đối đến `storage/preview.sqlite` trong source. Dùng `SESSION_DRIVER=file`, `CACHE_STORE=file`, `QUEUE_CONNECTION=sync`.
+
+```powershell
+if (-not (Test-Path storage/preview.sqlite)) { New-Item -ItemType File storage/preview.sqlite | Out-Null }
+php artisan config:clear
+# Chỉ tạo APP_KEY nếu .env chưa có key:
+# php artisan key:generate
+php artisan migrate --seed
+php artisan db:seed --class=SampleRecipeSeeder
+php scripts/import-recipe-photos.php
+php artisan storage:link
+npm.cmd run build
+php artisan serve --host=127.0.0.1 --port=8000
+```
+
+10 ảnh món mẫu đi kèm tại `public/images/recipe-samples`; script chép ảnh vào public disk và gắn theo tên món trên SQLite local. Script giữ ảnh người dùng đã tải lên, sao lưu database trước lần import đầu tiên tại `.laravel-bootstrap/preview-before-recipe-photos.sqlite` và không đổi nội dung công thức. Danh sách nguồn ảnh nằm ở `docs/recipe-photo-sources.json`, có trang “Nguồn ảnh” ở cuối website. `.env`, database SQLite và bản sao lưu không được đưa vào Git. SQLite dùng cho demo local; luồng database nhóm MySQL bên dưới vẫn áp dụng riêng.
+
 ## Cài mới bởi người phụ trách database
 
 Toàn bộ 10 bảng nghiệp vụ được định nghĩa trong `database/migrations`, chạy theo thứ tự khóa ngoại. `php artisan migrate --seed` tạo schema và nạp catalog; không cần file SQL tạo bảng hoặc installer riêng. `CatalogSeeder` chứa dữ liệu 5 danh mục, 10 thẻ và 30 nguyên liệu.

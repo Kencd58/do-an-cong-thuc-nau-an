@@ -21,7 +21,7 @@
     --accent: #8b682f;
     --accent-hover: #705122;
     --accent-soft: #f2e7d0;
-    --turmeric: #946611;
+    --turmeric: #eab308;
     --muted: #71604e;
     --surface: #fffdf7;
     --canvas: #f8f2e4;
@@ -274,6 +274,7 @@ input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="
 .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: var(--turmeric); }
 .star-rating label:hover { transform: translateY(-2px); }
 .star-rating input:focus-visible + label { border-radius: 4px; outline: 3px solid var(--focus); outline-offset: 3px; }
+.rating-remove-form { margin-top: 16px; }
 .comment-list { margin-top: 20px; }
 .comment { padding: 20px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
 .comment time, .comment > p > span { color: var(--muted); font-size: 12px; }

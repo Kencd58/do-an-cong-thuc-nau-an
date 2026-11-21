@@ -40,7 +40,7 @@
                     @endif
                     <span class="account-chip" title="{{ auth()->user()->name }}">
                         <span class="account-avatar" aria-hidden="true">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
-                        <span class="account-name">{{ auth()->user()->name }}</span>
+                        <span class="sr-only">{{ auth()->user()->name }}</span>
                     </span>
                 @else
                     <a href="{{ route('login') }}" @if(request()->routeIs('login')) aria-current="page" @endif>Đăng nhập</a>
@@ -109,7 +109,7 @@
                 @endif
                 @yield('content')
             </main>
-            <footer class="site-footer"><span>Bếp Nhà</span><span>Một chút cảm hứng, một bữa cơm ngon.</span></footer>
+            <footer class="site-footer"><span>Bếp Nhà</span><span>Một chút cảm hứng, một bữa cơm ngon.</span><a href="{{ asset('images/recipe-photo-sources.html') }}">Nguồn ảnh</a></footer>
         </div>
     </div>
 </body>
