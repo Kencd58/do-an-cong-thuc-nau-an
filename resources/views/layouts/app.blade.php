@@ -11,17 +11,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 @php($showSidebar = ! request()->routeIs('login', 'register'))
-<body class="{{ $showSidebar ? 'has-app-shell' : 'has-auth-shell' }}">
-    <a class="skip-link" href="#main">Đến nội dung chính</a>
-
+<body @class(['has-auth-shell' => ! $showSidebar])>
     <header class="site-header">
         <div class="header-inner">
-            @if ($showSidebar)
-                <button class="menu-toggle" type="button" data-sidebar-toggle aria-controls="app-sidebar" aria-expanded="false">
-                    <span class="sr-only">Mở menu</span>
-                    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-                </button>
-            @endif
             <a class="brand" href="{{ url('/') }}" aria-label="Bếp Nhà — Trang chủ">
                 <span class="brand-mark" aria-hidden="true">B.</span>
                 <span>Bếp Nhà</span>
@@ -29,9 +21,8 @@
 
             <div class="header-actions">
                 @if ($showSidebar && Route::has('recipes.index'))
-                    <a class="header-search" href="{{ route('recipes.index') }}">
+                    <a class="header-search" href="{{ route('recipes.index') }}" aria-label="Tìm công thức" title="Tìm công thức">
                         <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
-                        <span>Tìm công thức</span>
                     </a>
                 @endif
                 @auth
@@ -52,7 +43,6 @@
 
     <div class="app-shell {{ $showSidebar ? '' : 'app-shell-centered' }}">
         @if ($showSidebar)
-            <div class="sidebar-backdrop" data-sidebar-close hidden></div>
             <aside class="app-sidebar" id="app-sidebar" aria-label="Điều hướng chính">
                 <nav class="sidebar-nav">
                     <a href="{{ route('home') }}" @if(request()->routeIs('home')) aria-current="page" @endif>

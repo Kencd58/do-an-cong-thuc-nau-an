@@ -8,34 +8,6 @@ document.querySelectorAll('[data-recipe-image]').forEach(image => {
     if (image.complete && image.naturalWidth === 0) fallback();
 });
 
-const sidebarToggle = document.querySelector('[data-sidebar-toggle]');
-const sidebarBackdrop = document.querySelector('[data-sidebar-close]');
-const sidebar = document.querySelector('#app-sidebar');
-
-if (sidebarToggle && sidebar && sidebarBackdrop) {
-    const setSidebar = open => {
-        document.body.classList.toggle('sidebar-open', open);
-        sidebarToggle.setAttribute('aria-expanded', String(open));
-        sidebarBackdrop.hidden = !open;
-        if (open) sidebar.querySelector('a, button')?.focus();
-    };
-
-    sidebarToggle.addEventListener('click', () => setSidebar(!document.body.classList.contains('sidebar-open')));
-    sidebarBackdrop.addEventListener('click', () => setSidebar(false));
-    sidebar.addEventListener('click', event => {
-        if (event.target.closest('a') && window.matchMedia('(max-width: 1020px)').matches) setSidebar(false);
-    });
-    document.addEventListener('keydown', event => {
-        if (event.key === 'Escape' && document.body.classList.contains('sidebar-open')) {
-            setSidebar(false);
-            sidebarToggle.focus();
-        }
-    });
-    window.addEventListener('resize', () => {
-        if (window.innerWidth > 1020 && document.body.classList.contains('sidebar-open')) setSidebar(false);
-    });
-}
-
 document.querySelectorAll('[data-confirm-delete]').forEach(form => {
     form.addEventListener('submit', event => {
         if (!window.confirm(form.dataset.confirmDelete || 'Xóa công thức này? Thao tác này không thể hoàn tác.')) event.preventDefault();
